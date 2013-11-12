@@ -42,4 +42,18 @@
 	width: 60px;
 	margin: 10px;
 	border-radius: 8px;
+	background-repeat: no-repeat;
 }
+
+.north, .south, .east, .west {
+	border-color: red;
+	border-width: 6px;
+}
+
+.north { border-style: solid none none none; }
+.east { border-style: none solid none none; }
+.south { border-style: none none solid none; }
+.west { border-style: none none none solid; }
+
+
+

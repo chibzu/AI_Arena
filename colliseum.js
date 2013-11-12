@@ -9,13 +9,13 @@ TEAM_SIZE = 5;
 
 //directions
 NORTH = 0;
-SOUTH = 1;
-EAST = 2;
+EAST = 1;
+SOUTH = 2;
 WEST = 3;
 
 //actions
 ROTATE_CW = 10;
-ROTATE_CCW =11;
+ROTATE_CCW = 11;
 ATTACK = 12;
 PASS = 13;
 WALK = 14;
@@ -28,7 +28,7 @@ FOOD = 23;
 
 //game tracking objects
 var colliseum = [];
-gladiators = [];
+var gladiators = [];
 
 var food = [];
 
@@ -95,6 +95,7 @@ window.addEventListener("load", function(e){
 		document.querySelector(".row"+y+".col"+x).appendChild(foodIcon);
 	}	
 	
+	document.getElementById("start_button").addEventListener("click", startGame);
 });
 
 function loadTeam(team) {
@@ -106,31 +107,60 @@ function loadTeam(team) {
 	
 	for (i=0; i<TEAM_SIZE; i++){
 		var fighter = {id: i};
-		if (team == "home"){
+		var fighterIcon = document.createElement("div");
+		fighter["name"] = army["name"];
+		fighter["team"] = team;
+		fighter["getAction"] = army["getAction"];
+		if (team == "home") {
 			fighter["x"] = army["startPositions"][i]["x"];
 			fighter["y"] = army["startPositions"][i]["y"];
+			fighter["bearing"] = EAST;
+			fighterIcon.className = "fighter east";
 		}
 		else {
 			fighter["x"] = (BOARD_WIDTH - 1 - parseInt(army["startPositions"][i]["x"]));
 			fighter["y"] = army["startPositions"][i]["y"];
+			fighter["bearing"] = WEST;
+			fighterIcon.className = "fighter west";
 		}
 		
-		var fighterIcon = document.createElement("div");
-		fighterIcon.className = "fighter";
-		fighterIcon.style["background-color"] = army["color"];
+		if (army["image"])
+			fighterIcon.style["background-image"] = "url("+army["image"]+")";
+		else
+			fighterIcon.style["background-color"] = army["color"];
 		document.querySelector(".row"+fighter["y"]+".col"+fighter["x"]).appendChild(fighterIcon);
 		
 		fighter["icon"] = fighterIcon;
 		
 		roster.push(fighter);
 	}
-	console.log(roster);
 }
 
+function startGame(){
+	var turnOrder = homeTeam.concat(awayTeam);
+	turnOrder = shuffleArray(shuffleArray(turnOrder));
+	console.log(turnOrder);
+	
+	while(turnOrder.length > 0){
+		var currentFighter = turnOrder.pop();
+		var result = currentFighter["getAction"]({x:currentFighter["x"], y:currentFighter["y"]});
+		console.log(currentFighter["name"] + " #" + currentFighter["id"] + " chose to " + result);
+	}
+}
 
-
-
-
+/**
+ * Randomize array element order in-place.
+ * Using Fisher-Yates shuffle algorithm.
+ */
+function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    return array;
+}
 
 
 

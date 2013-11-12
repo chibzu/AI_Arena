@@ -29,8 +29,9 @@
 		<div id='battlefield'>	
 		</div>
 		
-		
-
+		<div id='controls'>
+			<button id='start_button'>Start</button>
+		</div>
 	</body>
 </html>
 	
