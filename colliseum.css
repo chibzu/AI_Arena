@@ -1,0 +1,13 @@
+#battlefield {
+	background-color: #CCC;
+	text-align: center;
+}
+
+.battlefield_cell {
+	height: 50px;
+	width: 50px;
+	display: inline-block;
+	background-color: #BEFFB3;
+	margin: 2px;
+	border-radius: 8px;
+}
