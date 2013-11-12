@@ -1,13 +1,45 @@
+#away_team {
+	float: right;
+}
+
 #battlefield {
 	background-color: #CCC;
 	text-align: center;
 }
 
+#home_team {
+	float: left;
+}
+
 .battlefield_cell {
-	height: 50px;
-	width: 50px;
+	height: 80px;
+	width: 80px;
 	display: inline-block;
 	background-color: #BEFFB3;
-	margin: 2px;
+	margin: 4px;
+	border-radius: 8px;
+}
+
+.column {
+	display: inline-block;
+	height: 100%;
+}
+
+.food {
+	height: 60px;
+	width: 60px;
+	margin: 10px;
+	background-color: #F57FDF;
+	border-radius: 8px;
+}
+
+.roster {
+	font-size: 36px;
+}	
+
+.fighter {
+	height: 60px;
+	width: 60px;
+	margin: 10px;
 	border-radius: 8px;
 }
