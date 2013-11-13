@@ -12,6 +12,7 @@ NORTH = 0;
 EAST = 1;
 SOUTH = 2;
 WEST = 3;
+COMPASS = ['north', 'east', 'south', 'west'];
 
 //actions
 ROTATE_CW = 10;
@@ -139,13 +140,79 @@ function loadTeam(team) {
 function startGame(){
 	var turnOrder = homeTeam.concat(awayTeam);
 	turnOrder = shuffleArray(shuffleArray(turnOrder));
-	console.log(turnOrder);
 	
 	while(turnOrder.length > 0){
 		var currentFighter = turnOrder.pop();
-		var result = currentFighter["getAction"]({x:currentFighter["x"], y:currentFighter["y"]});
-		console.log(currentFighter["name"] + " #" + currentFighter["id"] + " chose to " + result);
+		if (currentFighter["dead"] || currentFighter["icon"].className.indexOf("dead") > -1){
+			currentFighter["dead"] = true;
+			continue;
+		}
+		
+		var result = currentFighter["getAction"]({x:currentFighter["x"], y:currentFighter["y"]});		
+		switch(result) {
+			case WALK:
+				console.log("moving fighter from " + currentFighter["x"] + "," + currentFighter["y"]);
+				var newX = currentFighter["x"]; 
+				var newY = currentFighter["y"];
+				switch(currentFighter["bearing"]) {
+					case NORTH:
+						newY = Math.max(0, currentFighter["y"]-1);
+						break;
+					case EAST:
+						newX = Math.min(BOARD_WIDTH-1, currentFighter["x"]+1);
+						break;
+					case SOUTH:
+						newY = Math.min(BOARD_HEIGHT-1, currentFighter["y"]+1);
+						break;
+					case WEST:
+						newX = Math.max(0, currentFighter["x"]-1);
+						break;
+				}
+				console.log("to " + currentFighter["x"] + "," + currentFighter["y"]);
+				var destination = document.querySelector(".row"+newY+".col"+newX);
+				if (destination && !destination.hasChildNodes()){
+					currentFighter["icon"].parentNode.removeChild(currentFighter["icon"]);
+					destination.appendChild(currentFighter["icon"]);
+					currentFighter["x"] = newX;
+					currentFighter["y"] = newY;
+				}
+				break;
+			case ATTACK:
+				var targetX = currentFighter["x"]; 
+				var targetY = currentFighter["y"];
+				switch(currentFighter["bearing"]) {
+					case NORTH:
+						targetY = Math.max(0, currentFighter["y"]-1);
+						break;
+					case EAST:
+						targetX = Math.min(BOARD_WIDTH-1, currentFighter["x"]+1);
+						break;
+					case SOUTH:
+						targetY = Math.min(BOARD_HEIGHT-1, currentFighter["y"]+1);
+						break;
+					case WEST:
+						targetX = Math.max(0, currentFighter["x"]-1);
+						break;
+				}
+				var target = document.querySelector(".row"+targetY+".col"+targetX);
+				if (target.hasChildNodes()){
+					target.firstChild.className += " dead";
+					target.removeChild(target.firstChild);
+				}
+				break;
+			case ROTATE_CW:
+				currentFighter["bearing"] = ((currentFighter["bearing"]+1)%4);
+				currentFighter["icon"].className = currentFighter["icon"].className.replace(/(north|east|south|west)/, COMPASS[currentFighter["bearing"]]);
+				break;
+			case ROTATE_CCW:
+				currentFighter["bearing"] = ((currentFighter["bearing"]+3)%4);
+				currentFighter["icon"].className = currentFighter["icon"].className.replace(/(north|east|south|west)/, COMPASS[currentFighter["bearing"]]);
+				break;
+			default:
+				break;
+		}
 	}
+	setTimeout(startGame, 500);
 }
 
 /**

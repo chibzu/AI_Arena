@@ -1,13 +1,13 @@
 <html>
 	<head>
-		<script type='text/javascript' src='/colliseum.js'></script>
-		<link rel='stylesheet' type='text/css' href='/colliseum.css'/>
+		<script type='text/javascript' src='colliseum.js'></script>
+		<link rel='stylesheet' type='text/css' href='colliseum.css'/>
 		
 <?php 
 	$gladiator_files = scandir(getcwd() . DIRECTORY_SEPARATOR . "gladiators");
 	for ($i=0; $i<count($gladiator_files); $i++){
 		if (strpos($gladiator_files[$i], ".js") !== false) {
-			echo("\t\t<script type='text/javascript' src='/gladiators/" . $gladiator_files[$i] . 	"'></script>\n");
+			echo("\t\t<script type='text/javascript' src='gladiators/" . $gladiator_files[$i] . 	"'></script>\n");
 		}
 	}
 	echo("\n");

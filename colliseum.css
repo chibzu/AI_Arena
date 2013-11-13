@@ -25,6 +25,10 @@
 	height: 100%;
 }
 
+.dead {
+	display: none;
+}
+
 .food {
 	height: 60px;
 	width: 60px;
