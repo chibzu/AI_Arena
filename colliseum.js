@@ -26,6 +26,8 @@ WALL = 20;
 EMPTY = 21;
 ENEMY = 22;
 FOOD = 23;
+SELF = 24;
+ALLY = 25;
 
 //game tracking objects
 var colliseum = [];
@@ -90,9 +92,11 @@ window.addEventListener("load", function(e){
 		}
 		while (spawnedFood[""+x+y] !== undefined);
 		spawnedFood[""+x+y] = "spawned";
-		food.push({x:x, y:y});
+		var foodModel = {x:x, y:y, name:"food"};
+		food.push(foodModel);
 		var foodIcon = document.createElement("div");
 		foodIcon.className = "food";
+		foodIcon.model = foodModel;
 		document.querySelector(".row"+y+".col"+x).appendChild(foodIcon);
 	}	
 	
@@ -112,6 +116,7 @@ function loadTeam(team) {
 		fighter["name"] = army["name"];
 		fighter["team"] = team;
 		fighter["getAction"] = army["getAction"];
+		fighterIcon["model"] = fighter;
 		if (team == "home") {
 			fighter["x"] = army["startPositions"][i]["x"];
 			fighter["y"] = army["startPositions"][i]["y"];
@@ -138,6 +143,7 @@ function loadTeam(team) {
 }
 
 function startGame(){
+	try{
 	var turnOrder = homeTeam.concat(awayTeam);
 	turnOrder = shuffleArray(shuffleArray(turnOrder));
 	
@@ -148,10 +154,39 @@ function startGame(){
 			continue;
 		}
 		
+		//build the fighter's view
+		var view = [];
+		for (i=-1; i<2; i++){
+			view.push([]);
+			for (j=-1; j<2; j++){
+				var targetX = (currentFighter["x"]+j);
+				var targetY = (currentFighter["y"]+i);
+				if (i == 0 && j == 0)
+					view[view.length-1].push(SELF);
+				else if (targetX < 0 || targetX >= BOARD_WIDTH ||
+					targetY < 0 || targetY >= BOARD_HEIGHT) {
+						view[view.length-1].push(WALL);
+				}
+				else {
+					var targetSquare = document.querySelector(".row"+targetY+".col"+targetX);
+					if (targetSquare.hasChildNodes()){
+						if (targetSquare.firstChild.model.name == "food")
+							view[view.length-1].push(FOOD)	
+						else if (currentFighter.name == targetSquare.firstChild.model.name)
+							view[view.length-1].push(ALLY);
+						else
+							view[view.length-1].push(ENEMY);			
+					}
+					else
+						view[view.length-1].push(EMPTY);
+				}
+			}
+		}
+
 		var result = currentFighter["getAction"]({x:currentFighter["x"], y:currentFighter["y"]});		
 		switch(result) {
 			case WALK:
-				console.log("moving fighter from " + currentFighter["x"] + "," + currentFighter["y"]);
+				//console.log("moving fighter from " + currentFighter["x"] + "," + currentFighter["y"]);
 				var newX = currentFighter["x"]; 
 				var newY = currentFighter["y"];
 				switch(currentFighter["bearing"]) {
@@ -168,7 +203,7 @@ function startGame(){
 						newX = Math.max(0, currentFighter["x"]-1);
 						break;
 				}
-				console.log("to " + currentFighter["x"] + "," + currentFighter["y"]);
+				//console.log("to " + currentFighter["x"] + "," + currentFighter["y"]);
 				var destination = document.querySelector(".row"+newY+".col"+newX);
 				if (destination && !destination.hasChildNodes()){
 					currentFighter["icon"].parentNode.removeChild(currentFighter["icon"]);
@@ -212,7 +247,12 @@ function startGame(){
 				break;
 		}
 	}
-	setTimeout(startGame, 500);
+	setTimeout(startGame, 300);
+	}
+	catch(e){
+		alert("error");
+		console.log(e);
+	}
 }
 
 /**
