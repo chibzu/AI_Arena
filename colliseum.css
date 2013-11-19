@@ -1,5 +1,8 @@
 #away_team {
-	float: right;
+	margin: 8px 8px;
+	position: absolute;
+	top: 0;
+	right: 0;
 }
 
 #battlefield {
@@ -7,8 +10,15 @@
 	text-align: center;
 }
 
+#controls {
+	text-align: center;
+}
+
 #home_team {
-	float: left;
+	margin: 8px 8px;
+	position: absolute;
+	top: 0;
+	left: 0;
 }
 
 .battlefield_cell {

@@ -36,7 +36,12 @@ var gladiators = [];
 var food = [];
 
 var homeTeam = [];
+var homeCount = TEAM_SIZE;
+var homeScore = 0;
 var awayTeam = [];
+var awayCount = TEAM_SIZE;
+var awayScore = 0;
+var turnsLeft = 100;
 
 window.addEventListener("load", function(e){
 	console.log("Setting up team areas");
@@ -53,7 +58,7 @@ window.addEventListener("load", function(e){
 		opt.innerHTML = gladiators[i]["name"];
 		awaySelect.appendChild(opt);
 	}
-	awaySelect.selectedIndex = 1;
+	awaySelect.selectedIndex = 2;
 	
 	document.getElementById("home_load").addEventListener("click", 
 		function(){loadTeam("home")}
@@ -73,6 +78,9 @@ window.addEventListener("load", function(e){
 		}
 		field.appendChild(document.createElement("br"));
 	}
+	document.getElementById("home_count").innerHTML = homeCount;
+	document.getElementById("away_count").innerHTML = awayCount;
+	document.getElementById("turns_left").innerHTML = turnsLeft;
 	
 	console.log("Setting up game logic");
 	for (i=0; i<BOARD_HEIGHT; i++){
@@ -99,8 +107,10 @@ window.addEventListener("load", function(e){
 		foodIcon.model = foodModel;
 		document.querySelector(".row"+y+".col"+x).appendChild(foodIcon);
 	}	
-	
+
 	document.getElementById("start_button").addEventListener("click", startGame);
+	loadTeam("home");
+	loadTeam("away");
 });
 
 function loadTeam(team) {
@@ -155,35 +165,13 @@ function startGame(){
 		}
 		
 		//build the fighter's view
-		var view = [];
-		for (i=-1; i<2; i++){
-			view.push([]);
-			for (j=-1; j<2; j++){
-				var targetX = (currentFighter["x"]+j);
-				var targetY = (currentFighter["y"]+i);
-				if (i == 0 && j == 0)
-					view[view.length-1].push(SELF);
-				else if (targetX < 0 || targetX >= BOARD_WIDTH ||
-					targetY < 0 || targetY >= BOARD_HEIGHT) {
-						view[view.length-1].push(WALL);
-				}
-				else {
-					var targetSquare = document.querySelector(".row"+targetY+".col"+targetX);
-					if (targetSquare.hasChildNodes()){
-						if (targetSquare.firstChild.model.name == "food")
-							view[view.length-1].push(FOOD)	
-						else if (currentFighter.name == targetSquare.firstChild.model.name)
-							view[view.length-1].push(ALLY);
-						else
-							view[view.length-1].push(ENEMY);			
-					}
-					else
-						view[view.length-1].push(EMPTY);
-				}
-			}
-		}
-
-		var result = currentFighter["getAction"]({x:currentFighter["x"], y:currentFighter["y"]});		
+		var view = getView(currentFighter);
+		console.log(currentFighter.name);
+		console.log(view);
+		
+		var result = currentFighter["getAction"]({id: currentFighter["id"], x:currentFighter["x"], 
+		y:currentFighter["y"], alliesAlive:(currentFighter["team"]=="home"?homeCount:awayCount)},view);
+		console.log(result);
 		switch(result) {
 			case WALK:
 				//console.log("moving fighter from " + currentFighter["x"] + "," + currentFighter["y"]);
@@ -230,8 +218,11 @@ function startGame(){
 						break;
 				}
 				var target = document.querySelector(".row"+targetY+".col"+targetX);
-				if (target.hasChildNodes()){
+				if (target.hasChildNodes() && target.firstChild.model != currentFighter){
 					target.firstChild.className += " dead";
+					reportDeath(target.firstChild.model.team == "home" ? "home" : "away");
+					if (target.firstChild.model.team != currentFighter.team)
+						scorePoint(currentFighter.team);
 					target.removeChild(target.firstChild);
 				}
 				break;
@@ -247,12 +238,90 @@ function startGame(){
 				break;
 		}
 	}
-	setTimeout(startGame, 300);
+	decrementTurn();
+	if (turnsLeft == 0)
+		alert("game over!");	
+	else
+		setTimeout(startGame, 100);
 	}
 	catch(e){
 		alert("error");
 		console.log(e);
+		console.log(e.stack);
 	}
+}
+
+//Helper functions
+//---------------------------------------------------------------------------------------------------
+function getView(currentFighter) {
+	var view = [];
+	for (i=-1; i<2; i++){
+		view.push([]);
+			for (j=-1; j<2; j++){
+				var targetX = (currentFighter["x"]+j);
+				var targetY = (currentFighter["y"]+i);
+				if (i == 0 && j == 0)
+					view[view.length-1].push({type:SELF});
+				else if (targetX < 0 || targetX >= BOARD_WIDTH ||
+					targetY < 0 || targetY >= BOARD_HEIGHT) {
+						view[view.length-1].push({type:WALL});
+				}
+				else {
+					var targetSquare = document.querySelector(".row"+targetY+".col"+targetX);
+					if (targetSquare.hasChildNodes()){
+						if (targetSquare.firstChild.model.name == "food")
+							view[view.length-1].push({type:FOOD})	
+						else if (currentFighter.name == targetSquare.firstChild.model.name)
+							view[view.length-1].push({type:ALLY, id:targetSquare.firstChild.model.id,
+								bearing:targetSquare.firstChild.model.bearing});
+						else {
+							var enemy = targetSquare.firstChild.model;
+							var enemyInfo = {type:ENEMY};
+							view[view.length-1].push();			
+							if ((i == -1 && j == 0 && enemy["bearing"] == SOUTH) ||
+								(i == 1 && j == 0 && enemy["bearing"] == NORTH) ||
+								(i == 0 && j == -1 && enemy["bearing"] == EAST) ||
+								(i ==0 && j == 1 && enemy["bearing"] == WEST))
+								enemyInfo["canAttackMe"] = true;
+							else
+								enemyInfo["canAttackMe"] = false;
+							
+							view[view.length-1].push(enemyInfo);
+						}
+					}
+					else
+						view[view.length-1].push({type:EMPTY});
+				}
+			}
+	}
+	return view;
+}
+
+function reportDeath(team){
+	if (team == "home"){
+		homeCount--;
+		document.getElementById("home_count").innerHTML = homeCount;
+	}
+	else{
+		awayCount--;
+		document.getElementById("away_count").innerHTML = awayCount;
+	}
+}
+
+function scorePoint(team){
+	if (team == "home"){
+		homeScore++;
+		document.getElementById("home_score").innerHTML = homeScore;
+	}
+	else{
+		awayScore++;
+		document.getElementById("away_score").innerHTML = awayScore;
+	}
+}
+
+function decrementTurn(){
+	turnsLeft--;
+	document.getElementById("turns_left").innerHTML = turnsLeft;
 }
 
 /**
