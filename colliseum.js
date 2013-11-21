@@ -100,7 +100,7 @@ window.addEventListener("load", function(e){
 		}
 		while (spawnedFood[""+x+y] !== undefined);
 		spawnedFood[""+x+y] = "spawned";
-		var foodModel = {x:x, y:y, name:"food"};
+		var foodModel = {x:x, y:y, name:"food", team:"food"};
 		food.push(foodModel);
 		var foodIcon = document.createElement("div");
 		foodIcon.className = "food";
@@ -220,7 +220,7 @@ function startGame(){
 				var target = document.querySelector(".row"+targetY+".col"+targetX);
 				if (target.hasChildNodes() && target.firstChild.model != currentFighter){
 					target.firstChild.className += " dead";
-					reportDeath(target.firstChild.model.team == "home" ? "home" : "away");
+					reportDeath(target.firstChild.model.team);
 					if (target.firstChild.model.team != currentFighter.team)
 						scorePoint(currentFighter.team);
 					target.removeChild(target.firstChild);
@@ -239,10 +239,13 @@ function startGame(){
 		}
 	}
 	decrementTurn();
-	if (turnsLeft == 0)
-		alert("game over!");	
-	else
-		setTimeout(startGame, 100);
+	if (turnsLeft <= 0 || homeCount == 0 || awayCount == 0){
+		clearTimeout(window.gameTimer);
+		gameOver();
+	}
+	else{
+		window.gameTimer = setTimeout(startGame, 100);
+	}
 	}
 	catch(e){
 		alert("error");
@@ -297,12 +300,37 @@ function getView(currentFighter) {
 	return view;
 }
 
+function gameOver(){
+	var popup = document.createElement("div");
+	popup.id = "game_over";
+	popup.appendChild(document.createTextNode("Game Over"));
+	popup.appendChild(document.createElement("br"));
+	if (homeCount == 0){
+		popup.appendChild(document.createTextNode("Away Team Wins!"));
+	}
+	else if (awayCount == 0){
+		popup.appendChild(document.createTextNode("Home Team Wins!"));
+	}
+	else {
+		if (homeScore > awayScore)		
+			popup.appendChild(document.createTextNode("Home Team Wins!"));
+		else if (homeScore < awayScore)		
+			popup.appendChild(document.createTextNode("Home Team Wins!"));
+		else
+			popup.appendChild(document.createTextNode("Draw"));
+	}
+	document.body.appendChild(popup);
+	popup.addEventListener("click", function(){
+		document.body.removeChild(popup);
+	});
+}
+
 function reportDeath(team){
 	if (team == "home"){
 		homeCount--;
 		document.getElementById("home_count").innerHTML = homeCount;
 	}
-	else{
+	else if(team == "away"){
 		awayCount--;
 		document.getElementById("away_count").innerHTML = awayCount;
 	}

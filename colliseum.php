@@ -15,7 +15,7 @@
 	</head>
 	<body>	
 		<div id='home_team' class='roster'>
-			Home Team<br/>
+			<div class='banner'>Home Team</div>
 			Remaining: <span id='home_count'></span><br/>
 			Score: <span id='home_score'>0</span><br/>
 			<select id='home_select'></select><br/>
@@ -34,8 +34,8 @@
 		</div>
 		
 		<div id='controls'>
-			Turn <span id='turns_left'>0</span><br/>
-			<button id='start_button'>Start</button>
+			<div id='turns'>Turns Left: <span id='turns_left'>0</span></div>
+			<span id='start_button'>Start</span>
 		</div>
 	</body>
 </html>

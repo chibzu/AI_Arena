@@ -1,33 +1,20 @@
-#away_team {
-	margin: 8px 8px;
-	position: absolute;
-	top: 0;
-	right: 0;
-}
-
-#battlefield {
+body {
 	background-color: #CCC;
 	text-align: center;
 }
 
-#controls {
-	text-align: center;
-}
-
-#home_team {
-	margin: 8px 8px;
-	position: absolute;
-	top: 0;
-	left: 0;
-}
-
 .battlefield_cell {
-	height: 80px;
-	width: 80px;
+	height: 75px;
+	width: 75px;
 	display: inline-block;
 	background-color: #BEFFB3;
 	margin: 4px;
 	border-radius: 8px;
+}
+
+.banner {
+	border-radius: 8px;
+	color: white;
 }
 
 .column {
@@ -39,9 +26,17 @@
 	display: none;
 }
 
+.fighter {
+	height: 52px;
+	width: 52px;
+	margin: 10px;
+	border-radius: 8px;
+	background-repeat: no-repeat;
+}
+
 .food {
-	height: 60px;
-	width: 60px;
+	height: 52px;
+	width: 52px;
 	margin: 10px;
 	background-color: #F57FDF;
 	border-radius: 8px;
@@ -49,15 +44,13 @@
 
 .roster {
 	font-size: 36px;
-}	
-
-.fighter {
-	height: 60px;
-	width: 60px;
-	margin: 10px;
+	margin: 8px 8px;
+	position: absolute;
+	top: 0;	
 	border-radius: 8px;
-	background-repeat: no-repeat;
-}
+	color: white;
+	padding: 4px 8px;
+}	
 
 .north, .south, .east, .west {
 	border-color: red;
@@ -68,6 +61,60 @@
 .east { border-style: none solid none none; }
 .south { border-style: none none solid none; }
 .west { border-style: none none none solid; }
+
+#away_team {
+	right: 0;
+	background-color: #859BFF;
+
+}
+
+#battlefield {
+}
+
+#controls {
+	text-align: center;
+}
+
+#game_over {
+	position: absolute;
+	left: 200px;
+	right: 200px;
+	top: 200px;
+	height: 300px;
+	background-color: #FFC14D;
+	color: black;
+	border-radius: 16px;
+	font-size: 100px;
+	padding-top: 50px;
+}
+
+#home_team {
+	left: 0;
+	background-color: #FF6666;
+}
+
+#start_button {
+	background-color: #75FF6E;
+	font-size: 48px;
+	padding: 4px 8px;
+	border-radius: 8px;
+	color: black;
+	cursor: default;
+	-webkit-user-select: none;
+}
+
+#start_button:hover{
+	background-color: #55EF4E;	
+}
+
+#turns {
+	font-size: 48px;
+}
+
+
+
+
+
 
 
 
